@@ -71,7 +71,7 @@ app.post('/api/signup', (req,res) => {
     const sqlQuery1 = ` CREATE TABLE ${username} ( 
         id int AUTO_INCREMENT PRIMARY KEY,
         tweet varchar(500),
-        date date,
+        date varchar(10),
         time time,
         bio varchar(60))
         ;`;
@@ -157,7 +157,43 @@ app.get('/api/search-people', (req,res) => {
     })
 })
 
+app.post('/api/connection-req', (req,res) => {
+    const connection = req.body.connect
+    if (connection === true) {
+        var connection1, connection2 = 0
+        const connectionTo = req.body.connectionTo
+        const connectionFrom = req.body.connectionFrom
+        const sqlQuery =  `INSERT INTO user-connections (connectionFrom, connectionTo) VALUES (?,?);`
+        db.query(sqlQuery, (err,responce) => {
+            console.log(err);
+            console.log("USER FOLLOWED");
+        })
+        const sqlQuery1 = `SELECT connections FROM users WHERE username = ?;`
+        db.query(sqlQuery1, [connectionTo], (err,resp) => {
+            connection1 = resp
+        })
+        const sqlQuery2 = `SELECT connections FROM users WHERE username = ?;`
+        db.query(sqlQuery2, [connectionFrom], (err, resp) => {
+            connection2 = resp
+        })
+        
+        connection1 = connection1 + 1;
+        connection2 = connection2 + 1;
+        console.log(connection1);
+        console.log(connection2);
 
+        const sqlQuery3 = `UPDATE users WHERE username = ? SET connections = ?;`
+        db.query(sqlQuery3, [connectionFrom,connection1], (err,resp) => {
+            console.log(err);
+            // console.log("CONNECTION COUNT INCREASED");
+        })
+        const sqlQuery4 = `UPDATE users WHERE username = ? SET connections = ?;`
+        db.query(sqlQuery4, [connectionTo,connection2], (err,resp) => {
+            // console.log("CONNECTION COUNT INCREASED");
+        })
+            
+    }
+})
 
 app.listen(3001, () => {
     console.log("SERVER IS RUNNING");

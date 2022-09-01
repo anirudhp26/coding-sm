@@ -68,7 +68,9 @@ export default function User() {
 
     const connectionReq = () => {
         if (connection === false) {
-            Axios.post('http://localhost:3001/api/connection-req', {connect: true, connectionFrom: chkUsername, connectionTo: user})
+            Axios.post('http://localhost:3001/api/connection-req', {connect: true, connectionFrom: chkUsername, connectionTo: user}).then((responce) => {
+                alert(responce.data.message)
+            })
         }
         else {
             Axios.post('http://localhost:3001/api/connection-req', {connect: false, connectionFrom: chkUsername, connectionTo: user})

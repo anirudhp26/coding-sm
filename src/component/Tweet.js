@@ -21,7 +21,7 @@ export default function Tweet(props){
             return <div className="tweet">
                         <div className="tweet-info">
                             <img src="/img/user-icon1.png" width = '25px' alt="USER" className="tweet-user-img" />
-                            <p>{props.username} {value.date}</p>
+                            <p>{props.username} &nbsp;&nbsp; {value.date}</p>
                             <div className="tweet-more-options">
                                 <span className="material-symbols-outlined">more_vert</span>
                             </div>
