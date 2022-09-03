@@ -27,7 +27,7 @@ app.use(cors({
 
 
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
 
@@ -51,19 +51,19 @@ var yyyy = today.getFullYear();
 
 today = dd + '/' + mm + '/' + yyyy;
 
-app.post('/api/signup', (req,res) => {
+app.post('/api/signup', (req, res) => {
     const username = req.body.username;
     const sqlQuery2 = `SELECT * from users where username = ${username};`;
-    db.query(sqlQuery2, (err,responce) => {
-        if(responce) {
-            res.send({reEnterData: true, message: "USER ALREADY EXISTS"})
+    db.query(sqlQuery2, (err, responce) => {
+        if (responce) {
+            res.send({ reEnterData: true, message: "USER ALREADY EXISTS" })
         }
     })
 
     const password = req.body.password;
     bcrypt.hash(password, saltLevel, (err, hash) => {
         const sqlQuery = 'INSERT INTO users (username, password, connections, bio, date) VALUES (?,?,0,"",?)';
-        db.query(sqlQuery, [username,hash,today], (error, responce) => {
+        db.query(sqlQuery, [username, hash, today], (error, responce) => {
             console.log("USER REGISTERED")
             console.log(error);
         })
@@ -71,12 +71,13 @@ app.post('/api/signup', (req,res) => {
     const sqlQuery1 = ` CREATE TABLE ${username} ( 
         id int AUTO_INCREMENT PRIMARY KEY,
         tweet varchar(500),
-        date varchar(10),
-        time time,
-        bio varchar(60))
-        ;`;
+        date varchar(10)
+        );`;
     db.query(sqlQuery1, (err, resp) => {
         req.session.user = username
+        if (err) {
+            res.redirect('/signup')
+        }
         res.send(username)
     });
 })
@@ -91,32 +92,32 @@ app.post('/api/login', (req, res) => {
             bcrypt.compare(password, responce[0].password, (error, result) => {
                 if (result) {
                     req.session.user = responce[0].username
-                    res.send(responce); 
+                    res.send(responce);
                 }
                 else {
-                    res.send({message: "INCORRECT PASSWORD!"});
+                    res.send({ message: "INCORRECT PASSWORD!" });
                 }
             })
         }
         else {
-            res.send({message: "NO USER FOUND"});
+            res.send({ message: "NO USER FOUND" });
         }
     })
 })
 
-app.get('/api/logout', (req,res) => {
+app.get('/api/logout', (req, res) => {
     req.session.destroy((err) => {
         res.clearCookie('user')
-        res.send({loggedIn: false})
+        res.send({ loggedIn: false })
     });
 })
 
-app.get('/api/login-chk', (req,res) => {
+app.get('/api/login-chk', (req, res) => {
     if (req.session.user) {
-        res.send({loggedIn: true, user: req.session.user})
+        res.send({ loggedIn: true, user: req.session.user })
     }
     else {
-        res.send({loggedIn: false})
+        res.send({ loggedIn: false })
     }
 })
 
@@ -128,10 +129,17 @@ app.get('/api/get-tweets', (req, res) => {
     });
 })
 
-app.get('/api/get-userinfo', (req,res) => {
+app.get('/api/get-userinfo', (req, res) => {
     res.send(req.session.user)
 })
 
+app.post('/api/getProfileData', (req,res) => {
+    const username = req.body.user
+    const sqlQuery = `SELECT username, connections, bio FROM users WHERE username = ?`
+    db.query(sqlQuery, [username], (err,responce) => {
+        res.send(responce)
+    })
+})
 
 app.post('/api/insert-tweet', (require, res) => {
     const tweet = require.body.tweet;
@@ -142,56 +150,113 @@ app.post('/api/insert-tweet', (require, res) => {
     });
 });
 
-app.get('/api/get-userProfile-data', (req,res) => {
-    const username = req.body.username;
-    const sqlQuery = `SELECT * FROM ${username}`;
-    db.query(sqlQuery, (require, responce) => {
-        res.send(responce);
-    })
-})
-
-app.get('/api/search-people', (req,res) => {
+app.get('/api/search-people', (req, res) => {
     const sqlQuery = `SELECT username FROM users`
-    db.query(sqlQuery, (err,responce) => {
+    db.query(sqlQuery, (err, responce) => {
         res.send(responce)
     })
 })
 
-app.post('/api/connection-req', (req,res) => {
+
+app.post('/api/connection-chk', (req, res) => {
+    const connectionTo = req.body.connectionTo //dev
+    const connectionFrom = req.body.connectionFrom //a
+    const sqlQuery1 = 'SELECT connectionFrom, connectionTo FROM userconnections WHERE connectionFrom = ? AND connectionTo = ?'
+    db.query(sqlQuery1, [connectionTo, connectionFrom], (err, responce) => {
+        // console.log(responce);
+        if (responce.length === 0) {
+            // console.log(err);
+            db.query(sqlQuery1, [connectionFrom, connectionTo], (error, resp) => {
+                console.log(resp.length);
+                if (resp.length === 0) {
+                    res.send({ connected: false })
+                }
+                else {
+                    res.send({ connected: true })
+                }
+
+            })
+        }
+        else if (responce.length != 0) {
+            console.log(responce.length);
+            res.send({ connected: true })
+        }
+    })
+})
+
+app.post('/api/connection-req', (req, res) => {
     const connection = req.body.connect
     if (connection === true) {
-        var connection1, connection2 = 0
         const connectionTo = req.body.connectionTo
         const connectionFrom = req.body.connectionFrom
-        const sqlQuery =  `INSERT INTO user-connections (connectionFrom, connectionTo) VALUES (?,?);`
-        db.query(sqlQuery, (err,responce) => {
+        const sqlQuery = 'INSERT INTO userconnections (connectionTo, connectionFrom) VALUES (?,?);';
+        db.query(sqlQuery, [connectionTo, connectionFrom], (err, responce) => {
             console.log(err);
-            console.log("USER FOLLOWED");
         })
+
         const sqlQuery1 = `SELECT connections FROM users WHERE username = ?;`
-        db.query(sqlQuery1, [connectionTo], (err,resp) => {
-            connection1 = resp
+        db.query(sqlQuery1, [connectionTo], (err, resp) => {
+            const connection1 = resp[0].connections + 1
+            const sqlQuery3 = `UPDATE users SET connections = ? WHERE username = ?;`
+            db.query(sqlQuery3, [connection1, connectionTo], (err, resp) => {
+                console.log(err);
+            })
         })
+
         const sqlQuery2 = `SELECT connections FROM users WHERE username = ?;`
         db.query(sqlQuery2, [connectionFrom], (err, resp) => {
-            connection2 = resp
+            const connection2 = resp[0].connections + 1
+            const sqlQuery4 = `UPDATE users SET connections = ? WHERE username = ?;`
+            db.query(sqlQuery4, [connection2, connectionFrom], (err, resp) => {
+                console.log(err);
+            })
         })
-        
-        connection1 = connection1 + 1;
-        connection2 = connection2 + 1;
-        console.log(connection1);
-        console.log(connection2);
+        res.send({ message: `YAYY ! YOU ARE NOW CONNECTED WITH ${connectionTo}`, connected: true })
+    }
+    else if (connection === false) {
+        const connectionTo = req.body.connectionTo
+        const connectionFrom = req.body.connectionFrom
+        const sqlQuery1 = 'SELECT * FROM userconnections WHERE connectionTo = ? AND connectionFrom = ?'
+        db.query(sqlQuery1, [connectionTo, connectionFrom], (err, responce) => {
+            const sqlQuery = `DELETE FROM userconnections WHERE (connectionTo = ? AND connectionFrom = ?)`
+            if (responce.length === 0) {
+                db.query(sqlQuery, [connectionFrom, connectionTo], (error, resp) => {
+                    const sqlQuery2 = `SELECT connections FROM users WHERE username = ?;`
+                    db.query(sqlQuery2, [connectionFrom], (err, respo) => {
+                        const connection2 = respo[0].connections - 1
+                        const sqlQuery4 = `UPDATE users SET connections = ? WHERE username = ?;`
+                        db.query(sqlQuery4, [connection2, connectionFrom])
+                    })
 
-        const sqlQuery3 = `UPDATE users WHERE username = ? SET connections = ?;`
-        db.query(sqlQuery3, [connectionFrom,connection1], (err,resp) => {
-            console.log(err);
-            // console.log("CONNECTION COUNT INCREASED");
+                    const sqlQuery5 = `SELECT connections FROM users WHERE username = ?;`
+                    db.query(sqlQuery5, [connectionTo], (err, resp) => {
+                        const connection1 = resp[0].connections - 1
+                        const sqlQuery3 = `UPDATE users SET connections = ? WHERE username = ?;`
+                        db.query(sqlQuery3, [connection1, connectionTo])
+                    })  
+                    res.send({ message: `YOU JUST DISCONNECTED FROM ${connectionTo}`, connected: false })
+                })
+            }
+
+            else {
+                db.query(sqlQuery, [connectionTo, connectionFrom], (error, resp) => {
+                    const sqlQuery2 = `SELECT connections FROM users WHERE username = ?;`
+                    db.query(sqlQuery2, [connectionFrom], (err, respo) => {
+                        const connection2 = respo[0].connections - 1
+                        const sqlQuery4 = `UPDATE users SET connections = ? WHERE username = ?;`
+                        db.query(sqlQuery4, [connection2, connectionFrom])
+                    })
+
+                    const sqlQuery5 = `SELECT connections FROM users WHERE username = ?;`
+                    db.query(sqlQuery5, [connectionTo], (err, resp) => {
+                        const connection1 = resp[0].connections - 1
+                        const sqlQuery3 = `UPDATE users SET connections = ? WHERE username = ?;`
+                        db.query(sqlQuery3, [connection1, connectionTo])
+                    })
+                    res.send({ message: `YOU JUST DISCONNECTED FROM ${connectionTo}`, connected: false })
+                })
+            }
         })
-        const sqlQuery4 = `UPDATE users WHERE username = ? SET connections = ?;`
-        db.query(sqlQuery4, [connectionTo,connection2], (err,resp) => {
-            // console.log("CONNECTION COUNT INCREASED");
-        })
-            
     }
 })
 
