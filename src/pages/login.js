@@ -35,7 +35,8 @@ export default function Login() {
                 <input type="password" name="password" placeholder="password" id="password" className="login-inputs" onChange={(e) => {setPassword(e.target.value)}} onKeyDown={handleKeypress}></input>
                 <a className="login-btn" onClick={btnClk} >LOGIN</a>
                 <div className="login-more-options">
-                    <p>Don't have an account? <a><Link to='/signup' className="login-btn">Sign UP</Link></a></p>
+                    <p>Don't have an account?<br/><br/> <a><Link to='/signup' className="login-btn">Sign UP</Link></a>
+                    </p>
                 </div>
             </div>
         </>

@@ -9,10 +9,9 @@ export default function Header() {
     const [loginRedirect, setLoginredirect] = React.useState('/login');
     const [search, setSearch] = React.useState('')
     let navigate = useNavigate(); 
-    const routeChange = () =>{ 
-    let path = `/login`; 
-    navigate(path);
-  }
+    const routeChange = (path) =>{  
+        navigate(path);
+    }
     React.useEffect(() => {
         Axios.get('http://localhost:3001/api/login-chk').then((responce) => {
             if (responce.data.loggedIn === true) {
@@ -20,7 +19,7 @@ export default function Header() {
                 setLoginredirect(responce.data.user);
             }
             else {
-                routeChange();
+                routeChange('/login');
             }
         })
     }, [])
@@ -40,11 +39,15 @@ export default function Header() {
         }
     }
 
+    const menuClick = () => {
+        var element = document.getElementById("nav-ul");
+        element.classList.toggle("nav-ul-display");
+    }
     return (
     <>
         <nav className="navbar">
             <p className="nav-logo">code-blog</p>
-            <ul className="nav-ul"> 
+            <ul className="nav-ul" id="nav-ul"> 
                 <li className="nav-li"><a><Link to='/'>HOME</Link></a></li>
                 <li className="nav-li"><a><Link to='/tweets'>TWEETS</Link></a></li>
                 <li className="nav-li"><a><Link to='/blogs'>BLOGS</Link></a></li>
@@ -62,9 +65,12 @@ export default function Header() {
                 )}
             </div>
             <div className="user-info">
-                <img src="/img/user-icon1.png" width = '50px' alt="USER" className="navbar-logo-img" />
+                <img src="/img/user-icon1.png" width = '50px' alt="USER" className="navbar-logo-img" onClick={() => {routeChange(`${loginRedirect}`)}}/>
                 <Link to={loginRedirect}><a>{loginStatus}</a></Link>  
             </div>
+            <span class="material-symbols-outlined menu" onClick={menuClick}>
+                menu
+            </span>
         </nav>
     </>
     )
