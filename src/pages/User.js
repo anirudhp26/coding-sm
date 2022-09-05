@@ -53,14 +53,15 @@ export default function User() {
         Axios.post('http://localhost:3001/api/connection-chk', {connectionFrom: chkUsername, connectionTo: user}).then((responce) => {
             if (responce.data.connected === true) {
                 setConnection(true)
-                // window.location.reload();
+                var element1 = document.getElementById("connection-line-vertical");
+                element1.classList.toggle("connection-line-vertical-glow")
             }
             else {
                 setConnection(false)
-                // window.location.reload();
+                var element1 = document.getElementById("connection-line-vertical");
+                element1.classList.remove("connection-line-vertical-glow")
             }
         })
-        // window.location.reload();
     }, [connections]);
 
     const logout = () => {
@@ -81,12 +82,13 @@ export default function User() {
     const connectionReq = () => {
         if (connection === false) {
             Axios.post('http://localhost:3001/api/connection-req', {connect: true, connectionFrom: chkUsername, connectionTo: user}).then((responce) => {
-                alert(responce.data.message)
+                window.location.reload();
+                
             })
         }
         else {
             Axios.post('http://localhost:3001/api/connection-req', {connect: false, connectionFrom: chkUsername, connectionTo: user}).then((responce) => {
-                alert(responce.data.message)
+                window.location.reload();
             })
             
         }
@@ -97,7 +99,7 @@ export default function User() {
         if (connectBtn === true) {
             return (
                 <Popup
-            trigger={<button>{btn}</button>}
+            trigger={<button className="user-follow-edit-btn">{btn}</button>}
             modal
             nested
             >
@@ -112,21 +114,41 @@ export default function User() {
         }
         else if (connectBtn === false){
             return (
-                <button onClick={connectionReq}>{connection === true ? "DISCONNECT" : "CONNECT"}</button>
+                <button onClick={connectionReq} className="user-follow-edit-btn" id="user-btn-glow">{connection === true ? "DISCONNECT" : "CONNECT"}</button>
             )
         }
     }
 
     const ecBtn = edit_connect_btn();
-    
+
+    // const lineGlow = () => {
+    //     var element = document.getElementById("connection-line-vertical-btn");
+    //     const list = element.classList.toggle("connection-line-vertical-btn-glow")
+    // }
+
     return(
         <>
-            <div>
-                this is profile page for {username}<br/>
-                {bio}
-                {connections}
+            <div className="connection-line-horizontal">
             </div>
-            {ecBtn}
+            <div className="connection-line-vertical" id="connection-line-vertical"></div>
+            <div className="user-profile-root">
+                <div className="user-profile-toplayer">
+                    <div className="user-profile-pp">
+                        <img src="/img/user-icon1.png" />
+                    </div>
+                    <div className="user-profile-stats">
+                        <div className="user-profile-username">{username}</div>
+                        <div className="user-stats-head"> Connections</div>
+                        <div className="user-stat">{connections}</div>
+                    </div>
+                </div>
+                <div className="user-bio">
+                    {bio}
+                </div>
+                <div className="user-profile-btn">
+                    {ecBtn}
+                </div>
+            </div>
             <button onClick={logout}>logout</button>
         </>
 

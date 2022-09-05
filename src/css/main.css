@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+
 }
 
 body {
@@ -349,6 +350,101 @@ body {
     font-weight: bolder;
 }
 
+.user-profile-root {
+    width: 50vw;
+    height: 50vh;
+    display: block;
+    position: relative;
+    top: 5rem;
+    z-index: 1 !important;
+    /* background-color: aqua; */
+    margin: auto;
+    border: 1px solid grey;
+    box-shadow: 0 0 15px rgba(252, 251, 251, 0.934);
+}
+
+.user-profile-toplayer {
+    display: grid;
+    height: 50%;
+    grid-template-columns: 30% 70%;
+    place-items: center;
+}
+
+.user-profile-toplayer .user-profile-pp img {
+    width: 100%;
+    min-width: 100px;
+    max-width: 150px;
+}
+.user-profile-stats {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    height: 100%;
+    width: 100%;
+    padding-left: 1rem;
+    place-items: start;
+    font-family: 'Source Code Pro', monospace;
+}
+
+.user-stat {
+    width: 30%;
+    display: flex;
+    justify-content: center;
+    color: grey;
+}
+
+.user-profile-username {
+    font-weight: 700;
+    padding-top: 1rem;
+    font-size: 3rem;
+}
+
+.user-profile-btn {
+    margin-top: 1.5rem;
+    width: 100%;
+    height: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.user-follow-edit-btn {
+    justify-self: center;
+    width: 50%;
+    font-weight: 600;
+    background-color: blue;
+    color: white;
+    font-family: 'Source Code Pro', monospace;
+}
+
+.connection-line-horizontal {
+    border: 5px solid red;
+    box-shadow: 0 0 15px rgba(247, 5, 5, 1);
+    height: 10rem;
+    display: flex;
+    float: right;
+}
+
+.connection-line-vertical {
+    background: red;
+    border: 4px solid red;
+    border-radius: 15px;
+    width: 50%;
+    height: 6px;
+    top: 9.9rem;
+    right: 100%;
+    display: flex;
+    position: absolute;
+    transition: all 0.5s;
+}
+
+.connection-line-vertical-glow {
+    box-shadow: 0 0 15px rgba(247, 5, 5, 1);
+    right: 0%;
+}
+
+.user-btn-glow {
+    box-shadow: 0 0 15px rgb(0, 81, 255);
+}
+
 .border-left{
     border-left: 1px solid rgb(53, 53, 50);
 }
@@ -360,6 +456,7 @@ body {
 .user-info a {
     color: aliceblue;
 }
+
 
 .menu {
     display: none;
@@ -403,6 +500,7 @@ body {
         width: 100vw !important;
         right: 100%;
         display: flex;
+        z-index: 99 !important;
         top: 12vh;
         flex-direction: column;
         position: fixed;
