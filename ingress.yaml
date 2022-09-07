@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  name: yourapp-ingress
+  namespace: default
+  labels:
+    app: react-site
+    name: react-site-ingress
+spec:
+  rules:
+  - host: database.ed85899e-ff22-4c90-bdf5-0ab010e17f29.k8s.civo.com
+    http:
+      paths:
+      - path: /
+        pathType: "Prefix"
+        backend:
+          service:
+            name: anirudh-site
+            port: 5000
