@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import '../css/main.css'
 import Axios from "axios";
-
+import baseUrl from '../api/api.js'
 export default function Header() {
     Axios.defaults.withCredentials = true;
     const [loginStatus, setLoginstatus] = React.useState('');
@@ -12,8 +12,9 @@ export default function Header() {
     const routeChange = (path) =>{  
         navigate(path);
     }
+    console.log(baseUrl.baseUrl);
     React.useEffect(() => {
-        Axios.get('http://localhost:3001/api/login-chk').then((responce) => {
+        Axios.get(`${baseUrl.baseUrl}/login-chk`).then((responce) => {
             if (responce.data.loggedIn === true) {
                 setLoginstatus(responce.data.user)
                 setLoginredirect(responce.data.user);
@@ -25,7 +26,7 @@ export default function Header() {
     }, [])
     const searchPeople = (e) => {
         const searchIndex = e.target.value;
-        Axios.get('http://localhost:3001/api/search-people').then((responce) => {
+        Axios.get(`${baseUrl.baseUrl}/search-people`).then((responce) => {
             const newSearch = responce.data.filter((value) => {
                 return value.username.includes(searchIndex);
             })
